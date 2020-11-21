@@ -1,0 +1,494 @@
+import random
+from random import randrange
+import os
+def cls():
+    clear = "\n" * 100
+    print(clear)
+
+
+
+
+class Player():
+	def __init__(self,name,health=20,energy=5):
+		self.name = name
+		self.health = health
+		self.max_health = 20
+		self.max_energy = 5
+		self.energy = energy
+		self.renown = 0
+		self.level = 1
+		self.dmg = 3
+		self.inv_items=['Empty','Empty','Empty','Empty']
+		self.invmax = -4
+		self.inv_items=self.inv_items[self.invmax:]
+		self.greenbacks = 0
+
+
+	def skills(self,x):
+		pass
+
+
+
+	def gain_health(self,x):
+		self.health += x
+
+	def lose_health(self,x):
+		self.health -= x
+		if self.health < 1:
+			dead_char()
+
+	def gain_energy(self,x):
+		self.energy += x
+
+	def lose_energy(self,x):
+		self.energy -= x
+
+	def level_up(self):
+		self.level += 1
+
+	def gain_greenbacks(self,x):
+		self.greenbacks += x
+
+	def char_info(self,x):
+		print('Character Name: {}' .format(self.name))
+		print('Current Level: {}' .format(self.level))
+		print('Current Health {}' .format(self.health))
+		print('Current Energy: {}' .format(self.energy))
+		print('Weapon Equipped: {}' .format(weapon.equipped_weapon))
+		print('Armor Equipped: None')
+		print('Trinket Equipped: None')
+		print('Current Damage: {}' .format(x))
+		print('Current Greenbacks: {}' .format(self.greenbacks))
+		
+		
+
+
+
+class Mob():
+	
+
+	def __init__(self,name,health=0):
+		self.name = name
+		self.dmg = 0
+		self.health = health
+		if self.name == 'Crypt Rat':
+			self.health = 5
+		if self.name == 'Disgusting Blob':
+			self.health = 7
+		if self.name == 'Starving Kobold':
+			self.health = 6
+
+
+		#maybe add location
+		#maybe add level of location or level of mob
+
+	def intro(self):
+		if self.name == ('Mystic Teacher'):
+			print("I am the the first trial master and teacher of this dungeon. The way further will become increasingly more treacherous, but you have the skill and knowledge needed to proceed beyond me. I will not fight you, but offer a gift to aid in your journey.")
+
+		else:
+			print("You encounter a {}." .format(self.name))
+			print("It has {} health." .format(self.health))
+
+	def lose_health(self,x):
+		self.health -= x
+		if self.health > 0:
+			print("The {} has {} health remaining.".format(self.name,self.health))
+		else:
+			print("The {} has fallen!".format(self.name))
+			my_char.renown +=1
+			weapon.coup_count+=1
+
+	def attack(self):
+		if self.name == 'Crypt Rat':
+			
+			mob_dmg=[1,2,3,4]
+			self.dmg = random.choice(mob_dmg)
+			print("The {} attacks, dealing {} damage!".format(self.name,self.dmg))
+
+		if self.name == 'Disgusting Blob':
+			mob_dmg=[5,6,7]
+			self.dmg = random.choice(mob_dmg)
+			print("The {} attacks, dealing {} damage!".format(self.name,self.dmg))
+
+		if self.name == 'Starving Kobold':
+			mob_dmg=[3,4]
+			self.dmg = random.choice(mob_dmg)
+			print("The {} attacks, dealing {} damage!".format(self.name,self.dmg))
+
+
+def status():
+
+	print("                                                                                ")
+	print("View Character:")
+	x = player_attack_status()
+	my_char.char_info(x)
+	print("                                                                                ")
+
+	def menu():
+		print("0 Exit Menu")
+		print("1 Equip: "+my_char.inv_items[-1])
+		print("2 Equip: "+my_char.inv_items[-2])
+		print("3 Equip: "+my_char.inv_items[-3])
+		print("4 Equip: "+my_char.inv_items[-4])
+
+	menu()
+	option = int(input("Select item to equip: "))
+	thismenu=True
+	while thismenu==True:
+		if option == 0:
+			thismenu=False
+		if option == 1:
+			if weapon.equipped_weapon == 'None':
+				weapon.equipped_weapon = my_char.inv_items.pop(-1)
+				print('You have equipped an item!')
+				break	
+			else:
+				my_char.inv_items.append(weapon.equipped_weapon)
+				weapon.equipped_weapon = my_char.inv_items.pop(-1)
+				print('You have equipped an item!')
+				break
+		if option == 2:
+			print('Selection Worked')
+		if option == 3:
+			print('Selection Worked')
+		if option == 4: 
+			print('Selection Worked')
+
+class Weapon():
+	
+	def __init__(self,name):
+		
+		self.name = name
+		self.weapon_lst = ['Hammer', 'Muzzle Loader', 'Coup Stick']
+		self.equipped_weapon = 'None'
+		self.equipped_dmg = 0
+		self.coup_count = 0
+	
+	def apply_dmg(self):
+		if self.equipped_weapon == 'None':
+			self.equipped_dmg = 0
+			return self.equipped_dmg
+		if self.equipped_weapon == 'Hammer':
+			self.equipped_dmg = 2
+			return self.equipped_dmg
+		if self.equipped_weapon == 'Muzzle Loader':
+			self.equipped_dmg = 3
+			return self.equipped_dmg
+		if self.equipped_weapon == 'Coup Stick':
+			x = self.coup_count
+			self.equipped_dmg = x
+			return self.equipped_dmg
+
+	def shop_price(self):
+		if self.name == 'Hammer':
+			x = random.randrange(100,150)
+			return x
+		if self.name == 'Muzzle Loader':
+			x = random.randrange(175,250)
+			return x
+		if self.name == 'Coup Stick':
+			x = random.randrange(500,600)
+			return x
+		else:
+			x = random.randrange(200,300)
+			return x
+
+
+
+
+	
+#This function creates random item drops from a list.
+#At the moment you can find the same item multiple times. Might change that later. 
+def item_drop(): 
+	drop_index = randrange(len(weapon.weapon_lst))
+	drop = weapon.weapon_lst[drop_index]
+
+	print('You search the room for treasure and find a {}.'.format(drop))
+	selection = input('Add {} to your inventory? y/n'.format(drop))
+	if selection == 'y':
+		if weapon.weapon_lst == []:
+			print("After searching, you find nothing of value.")
+
+		else:
+			print('{} was added to your inventory.'.format(drop))
+			my_char.inv_items.append(drop)
+		
+	if selection == 'n':
+		print("You decide to leave the item behind.")
+
+
+
+
+
+
+def player_attack():
+	x = weapon.apply_dmg()
+	y = my_char.dmg
+	z = x+y
+	print('You strike at the enemy dealing {} damage!'.format(z))
+	return z
+
+def player_attack_status():
+	x = weapon.apply_dmg()
+	y = my_char.dmg
+	z = x+y
+	return z
+
+#This function chooses an encounter based on many criteria
+#Will build this out to have different encounters chosen
+def pick_encounter():
+	if my_char.level:
+		pass 
+
+#This function enters the level up dialog
+def level_up():
+	print("                                                                                ")
+	print("LEVEL UP!")
+
+	def level_menu():
+		print("1 - Increase Damage (+1)")
+		print("2 - Increase Health (+5)")
+		print("3 - Increase Energy (+1)")
+		print("4 - More Money! (substantial undisclosed amount)")
+
+	level_menu()
+	option = int(input("Better yourself! Make your selection: "))
+	thismenu=True
+	while thismenu==True:
+		if option == 1:
+			my_char.dmg += 1
+			my_char.level += 1
+			print ('Whoa! You feel stronger.')
+			break
+		if option == 2:
+			my_char.health += 5
+			my_char.level += 1
+			print("You feel your heartiness increase.")
+			break
+		if option == 3:
+			my_char.max_energy += 1
+			my_char.level += 1
+			print('You feel like you can get more done in a day.')
+			break
+		if option == 4: 
+			get_rich = random.randrange(100,200)
+			my_char.gain_greenbacks(get_rich)
+			my_char.level += 1
+			print("You feel more rich. And you are by {} greenbacks." .format(get_rich))
+			break
+
+
+#The trial function runs when the player gets a chance complete a trial and level up
+def trial():
+	if my_char.renown == 4:
+		trial_mob = Mob('Mystic Teacher',3)
+		trial_mob.intro()
+		item_drop()
+		level_up()
+		my_char.renown += 1
+	else:
+		pass
+
+
+
+
+#LIST OF MOBS I WILL PICK TO RANDO FROM
+mob_dic=['Crypt Rat','Disgusting Blob','Starving Kobold']
+	
+def combat():
+	
+	cls()
+	current_mob=Mob(random.choice(mob_dic))
+	current_mob.intro()
+
+	combat_menu = {}
+	combat_menu['1']="Attack!"
+	combat_menu['2']="Flee"
+	combat_menu['3']="View Character/Enemy"
+	while True:
+		options=combat_menu.keys()
+		for entry in options:
+			print (entry, combat_menu[entry])
+
+		selection=input("THE CRYPT - Please Select:")
+		if selection == '1':
+			x = player_attack()
+			
+			current_mob.lose_health(x)
+			if current_mob.health > 0:
+				current_mob.attack()
+				my_char.lose_health(current_mob.dmg)
+			else:
+				break
+		if selection == '2':
+			current_mob.attack()
+			my_char.lose_health(current_mob.dmg)
+			break
+		if selection == '3':
+			status()
+
+def dead_char():
+	print('You have pushed your luck too far this time. You have died and your journey in this world has ended.')
+	welcome()
+
+
+
+
+
+
+
+def crypt():
+	crypt_floor = 0
+	crypt_menu = {}
+	crypt_menu['1']="Proceed Further"
+	crypt_menu['2']="Exit Crypt"
+	crypt_menu['3']="View Character"
+	crypt_menu['4']="Open Test Item"
+	while True:
+		options=crypt_menu.keys()
+		for entry in options:
+			print (entry, crypt_menu[entry])
+
+		selection=input("THE CRYPT - Please Select:")
+		if selection == '1':
+			if my_char.energy < 1:
+				print('You are too tired to go on. Maybe it is time for a break at the saloon.')
+				break
+			else:
+				if my_char.renown == 4:
+					my_char.energy -=1
+					trial()
+				else:
+
+					crypt_floor += 1
+					my_char.energy -=1
+					print('Entering Crypt Level {}'.format(crypt_floor))
+					combat()
+		if selection == '2':
+			break
+		if selection == '3':
+			status()
+		if selection == '4':
+			item_drop()
+
+
+
+
+
+def welcome():
+	global weapon
+	global my_char
+	
+	print("Welcome to Shae's Red Dragon Clone!")
+	
+
+	start_menu = {}
+	start_menu['1']="Start New Character"
+	start_menu['2']="Continue Existing Character"
+	start_menu['3']="Quit"
+	while True:
+		options=start_menu.keys()
+		for entry in options:
+			print (entry, start_menu[entry])
+
+		selection=input("Please Select:")
+		if selection =='1':
+			weapon = Weapon('None')
+			my_char = Player(name=input("Name your character."))
+			
+			print('Welcome {}. Your journey begins!'.format(my_char.name))
+			main_menu()
+
+		elif selection == '2':
+			print("Selection 2 worked.")
+		elif selection == '3':
+			break
+
+def inn():
+	cls()
+	print('Welcome to the sleepy saloon, a place of rest and relaxation.')
+	def inn_menu():
+		print("1 - Sleep (End's your day, restores energy and health to full.)")
+		print("2 - View Character")
+		print("3 - Leave Inn")
+
+
+	inn_menu()
+	option = int(input("Make your selection "))
+	thismenu=True
+	while thismenu==True:
+		if option == 1:
+			print("You drift off into a restful sleep. ZZZZZ ZZZZZ ZZZZZZ")
+			my_char.energy = my_char.max_energy
+			my_char.health = my_char.max_health
+			weapon.coup_count = 0
+			break
+		if option == 2:
+			status()
+			break
+		if option == 3:
+			break
+			thismenu==False
+
+def shop():
+	shop_index = randrange(len(weapon.weapon_lst))
+	shop_weapon = weapon.weapon_lst[shop_index]
+	cls()
+	print("Welcome to the town shop. Our wares rotate often so be sure to check back if you don't find something you like!")
+	def shop_menu():
+		print("{}: {}".format(shop) .format(shop_weapon.shopprice()))
+		print("Item 2: {}".format(shop))
+		print("Item 3: {}".format(shop))
+		print("4 - Leave Shop")
+
+	shop_menu()
+	option = int(input("Make your selection "))
+	thismenu=True
+	while thismenu==True:
+		if option == 1:
+			print("Item 1")
+			break
+		if option == 2:
+			print("Item 2")
+			break
+		if option == 3:
+			print("Item 3")
+			break
+		if option == 4:
+			break
+			thismenu==False
+
+
+
+def main_menu():
+	main_menu = {}
+	main_menu['1']="Town Shop" 
+	main_menu['2']="Enter Crypt"
+	main_menu['3']="View Character"
+	main_menu['4']="Rest at Inn"
+	while True: 
+	    options=main_menu.keys()
+	    for entry in options: 
+	      print (entry, main_menu[entry])
+
+	    selection=input("Please Select:") 
+	    if selection =='1': 
+	      shop()
+	    elif selection == '2': 
+	      print("Entering Crypt")
+	      crypt()
+	    elif selection == '3':
+	    	status()
+	    elif selection == '4':
+	    	inn()
+	    else: 
+	      print ("Unknown Option Selected!")
+
+welcome()
+
+
+
+
+
+
