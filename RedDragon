@@ -1,8 +1,9 @@
 import random
 from random import randrange
 import os
+import pickle
 def cls():
-    clear = "\n" * 100
+    clear = "\n" * 150
     print(clear)
 
 
@@ -45,6 +46,13 @@ class Player():
 
 	def level_up(self):
 		self.level += 1
+
+	def lose_greenbacks(self,x):
+		if self.greenbacks > 0:
+			self.greenbacks -= x
+			print('You lose {} greenbacks.'.format(x))
+		else:
+			self.greenbacks = 0
 
 	def gain_greenbacks(self,x):
 		self.greenbacks += x
@@ -95,7 +103,9 @@ class Mob():
 		if self.health > 0:
 			print("The {} has {} health remaining.".format(self.name,self.health))
 		else:
-			print("The {} has fallen!".format(self.name))
+			g = random.randrange(10,55)
+			print("The {} has fallen! You search the corpse and find {} greenbacks.".format(self.name,g))
+			my_char.gain_greenbacks(g)
 			my_char.renown +=1
 			weapon.coup_count+=1
 
@@ -115,6 +125,7 @@ class Mob():
 			mob_dmg=[3,4]
 			self.dmg = random.choice(mob_dmg)
 			print("The {} attacks, dealing {} damage!".format(self.name,self.dmg))
+
 
 
 def status():
@@ -138,6 +149,7 @@ def status():
 	while thismenu==True:
 		if option == 0:
 			thismenu=False
+			break
 		if option == 1:
 			if weapon.equipped_weapon == 'None':
 				weapon.equipped_weapon = my_char.inv_items.pop(-1)
@@ -145,7 +157,7 @@ def status():
 				break	
 			else:
 				my_char.inv_items.append(weapon.equipped_weapon)
-				weapon.equipped_weapon = my_char.inv_items.pop(-1)
+				weapon.equipped_weapon = my_char.inv_items.pop(-2)
 				print('You have equipped an item!')
 				break
 		if option == 2:
@@ -156,7 +168,8 @@ def status():
 			print('Selection Worked')
 
 class Weapon():
-	
+
+
 	def __init__(self,name):
 		
 		self.name = name
@@ -179,20 +192,7 @@ class Weapon():
 			x = self.coup_count
 			self.equipped_dmg = x
 			return self.equipped_dmg
-
-	def shop_price(self):
-		if self.name == 'Hammer':
-			x = random.randrange(100,150)
-			return x
-		if self.name == 'Muzzle Loader':
-			x = random.randrange(175,250)
-			return x
-		if self.name == 'Coup Stick':
-			x = random.randrange(500,600)
-			return x
-		else:
-			x = random.randrange(200,300)
-			return x
+			
 
 
 
@@ -379,6 +379,7 @@ def crypt():
 def welcome():
 	global weapon
 	global my_char
+	global town_shop
 	
 	print("Welcome to Shae's Red Dragon Clone!")
 	
@@ -396,14 +397,39 @@ def welcome():
 		if selection =='1':
 			weapon = Weapon('None')
 			my_char = Player(name=input("Name your character."))
+			town_shop = Shop('Town')
 			
 			print('Welcome {}. Your journey begins!'.format(my_char.name))
 			main_menu()
 
 		elif selection == '2':
-			print("Selection 2 worked.")
+			x = input('What is the name of the character you wish to recall?')
+			y = "'"+x+".pkl"+"'"
+			with open(y, 'rb') as char_file:
+				weapon = Weapon('None')
+				save_char = pickle.load(char_file)
+				my_char = Player('Load')
+				my_char.name = (save_char[0])
+				my_char.health = save_char[1]
+				my_char.max_health = save_char[2]
+				my_char.max_energy = save_char[3]
+				my_char.energy = save_char[4]
+				my_char.renown = save_char[5]
+				my_char.level = save_char[6]
+				my_char.dmg = save_char[7]
+				my_char.inv_items = save_char[8]
+				my_char.invmax = save_char[9]
+				my_char.greenbacks = save_char[10]
+				weapon.equipped_weapon = save_char[11]
+				town_shop = Shop('Town')
+
+				print('{} wakes from a restful sleep, eager to continue adventuring...'.format(my_char.name))
+				input('Press any key to begin your day...')
+				inn()
+				main_menu()
+
 		elif selection == '3':
-			break
+			exit()
 
 def inn():
 	cls()
@@ -423,41 +449,99 @@ def inn():
 			my_char.energy = my_char.max_energy
 			my_char.health = my_char.max_health
 			weapon.coup_count = 0
+			x = my_char.name
+			y = "'"+x+".pkl"+"'"
+			save_char = [my_char.name,my_char.health,my_char.max_health,my_char.max_energy,my_char.energy,my_char.renown,my_char.level,my_char.dmg,my_char.inv_items,my_char.invmax,my_char.greenbacks,weapon.equipped_weapon]
+			with open(y, 'wb') as char_file:
+				pickle.dump(save_char,char_file)
+			welcome()
 			break
 		if option == 2:
 			status()
 			break
 		if option == 3:
+			main_menu()
 			break
 			thismenu==False
 
-def shop():
-	shop_index = randrange(len(weapon.weapon_lst))
-	shop_weapon = weapon.weapon_lst[shop_index]
-	cls()
-	print("Welcome to the town shop. Our wares rotate often so be sure to check back if you don't find something you like!")
-	def shop_menu():
-		print("{}: {}".format(shop) .format(shop_weapon.shopprice()))
-		print("Item 2: {}".format(shop))
-		print("Item 3: {}".format(shop))
-		print("4 - Leave Shop")
+class Shop():
 
-	shop_menu()
-	option = int(input("Make your selection "))
-	thismenu=True
-	while thismenu==True:
-		if option == 1:
-			print("Item 1")
-			break
-		if option == 2:
-			print("Item 2")
-			break
-		if option == 3:
-			print("Item 3")
-			break
-		if option == 4:
-			break
-			thismenu==False
+	def __init__(self,name):
+
+		self.name = name
+		self.weapon = random.choice(weapon.weapon_lst)
+		if self.weapon == 'Hammer':
+			self.weapon_price = random.randrange(100,150)
+			
+		if self.weapon == 'Muzzle Loader':
+			self.weapon_price = random.randrange(175,250)
+			
+		if self.weapon == 'Coup Stick':
+			self.weapon_price = random.randrange(500,600)
+
+		if self.weapon == 'None':
+			self.weapon_price = 0
+
+		self.armor = 'None'
+		self.armor_price = 0
+		self.trinket = 'None'
+		self.trinket_price = 0
+
+
+	def shop_price(self):
+		if self.weapon == 'Hammer':
+			self.weapon_price = random.randrange(100,150)
+			
+		if self.weapon == 'Muzzle Loader':
+			self.weapon_price = random.randrange(175,250)
+			
+		if self.weapon == 'Coup Stick':
+			self.weapon_price = random.randrange(500,600)
+
+		if self.weapon == 'None':
+			self.weapon_price = 0
+
+	def welcome(self):
+		cls()
+		print("Welcome to the {} shop. Our wares rotate daily, so be sure to check back if you don't find something you like!".format(self.name))
+
+
+
+	def shop_menu(self):
+		print('1: {} - {}'.format(self.weapon,self.weapon_price))
+		print('2: ' + self.armor)
+		print('3: ' + self.trinket)
+		print('4: Exit Menu')
+
+		option = int(input("Make your selection, if you can afford it!"))
+		thismenu=True
+		while thismenu==True:
+			if option == 1:
+				if  self.weapon == 'None':
+					print("Sorry, there are no weapons in stock.")
+					break
+				elif my_char.greenbacks >= self.weapon_price:
+					my_char.lose_greenbacks(self.weapon_price)
+					print('{} was added to your inventory.'.format(self.weapon))
+					my_char.inv_items.append(self.weapon)
+					self.weapon = 'None'
+					self.weapon_price = 0
+					break
+				else:
+					print("Sorry, you don't have enough greenbacks for that one.")
+					thismenu==False
+					break
+			if option == 2:
+				print("Item 2")
+				break
+			if option == 3:
+				print("Item 3")
+				break
+			if option == 4:
+				thismenu==False
+				break
+
+
 
 
 
@@ -474,7 +558,8 @@ def main_menu():
 
 	    selection=input("Please Select:") 
 	    if selection =='1': 
-	      shop()
+	      x = town_shop.shop_menu()
+	      x
 	    elif selection == '2': 
 	      print("Entering Crypt")
 	      crypt()
